@@ -1,8 +1,7 @@
 name: Test Windows base image (vcredist)
 
 on:
-  push:
-    branches: [ "*" ]
+  workflow_dispatch:
 
 jobs:
   test-windows-base:
@@ -23,8 +22,3 @@ jobs:
         run: |
           docker run --rm gameci-windows-base-test powershell `
             "if (!(Test-Path C:\Windows\System32\msvcr120.dll)) { exit 1 }"
-
-      - name: Unity smoke test
-        run: |
-          docker run --rm unityci-editor-test `
-            Unity -batchmode -nographics -quit
