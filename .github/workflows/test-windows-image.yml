@@ -1,0 +1,30 @@
+name: Test Windows base image (vcredist)
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  test-windows-base:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Switch Docker to Windows containers
+        run: |
+          & "C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchDaemon
+
+      - name: Build Windows base image
+        run: |
+          docker build -t gameci-windows-base-test images/windows/base
+
+      - name: Verify VC++ 2013 runtime DLLs
+        run: |
+          docker run --rm gameci-windows-base-test powershell `
+            "if (!(Test-Path C:\Windows\System32\msvcr120.dll)) { exit 1 }"
+
+      - name: Unity smoke test
+        run: |
+          docker run --rm unityci-editor-test `
+            Unity -batchmode -nographics -quit
